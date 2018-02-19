@@ -359,3 +359,7 @@ paket-files/
 !/Libs/**/[Dd]ebug/*.lib
 !/Libs/**/[Rr]elease
 !/Libs/**/[Rr]elease/*.lib
+
+# User config file vs
+!Projects/*
+!Projects/**/*.user
