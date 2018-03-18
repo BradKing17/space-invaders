@@ -33,3 +33,23 @@ SpriteComponent* GameObject::spriteComponent()
 	return sprite_component;
 }
 
+int GameObject::get_vel_x()
+{
+	return velocity.x;
+}
+
+int GameObject::get_vel_y()
+{
+	return velocity.y;
+}
+
+void GameObject::set_vel_x(int direction_x)
+{
+	velocity.x = direction_x;
+}
+
+void GameObject::set_vel_y(int direction_y)
+{
+	velocity.y = direction_y;
+
+}
