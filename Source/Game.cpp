@@ -148,7 +148,7 @@ void SpaceInvaders::keyHandler(const ASGE::SharedEventData data)
 			{
 				menu_option = 1;
 			}
-			if (mode_select == true && menu_option < 2)
+			if (mode_select == true && menu_option < 3)
 			{
 				menu_option++;
 				
@@ -194,11 +194,17 @@ void SpaceInvaders::keyHandler(const ASGE::SharedEventData data)
 		case 2:
 			mode = 2;
 			break;
+
+		case 3:
+			mode = 3;
+			break;
 		}
+	
 
 
 		mode_select = false;
 		in_menu = false;
+
 	}
 
 	if (key->action == ASGE::KEYS::KEY_PRESSED)
@@ -320,52 +326,65 @@ void SpaceInvaders::render(const ASGE::GameTime &)
 		
 		if (mode_select)
 		{
-			renderer->renderText(menu_option == 0 ? ">GRAVITY" : "GRAVITY",
+			renderer->renderText(menu_option == 0 ? ">NORMAL" : "NORMAL",
+				200, 250, 1.0, ASGE::COLOURS::ORANGE);
+			renderer->renderText(menu_option == 1 ? ">GRAVITY" : "GRAVITY",
 				200, 300, 1.0, ASGE::COLOURS::ORANGE);
-			renderer->renderText(menu_option == 1 ? ">QUADRATIC" : "QUADRATIC",
+			renderer->renderText(menu_option == 2 ? ">QUADRATIC" : "QUADRATIC",
 				200, 350, 1.0, ASGE::COLOURS::ORANGE);
-			renderer->renderText(menu_option == 2 ? ">SINE" : "SINE",
+			renderer->renderText(menu_option == 3 ? ">SINE" : "SINE",
 				200, 400, 1.0, ASGE::COLOURS::ORANGE);
 		}
 	}
 	else
 	{
-
-		renderer->renderSprite(*defender_sprite);
-
-		std::string x_str = "X: " + std::to_string(1-(aliens[0].spriteComponent()->getSprite()->xPos()/game_width));
-		renderer->renderText(x_str.c_str(),
-			game_width - 60, game_height - 20, ASGE::COLOURS::WHITE);
-		std::string y_str = "Y: " + std::to_string(aliens[0].get_vel_y());
-		renderer->renderText(y_str.c_str(),
-			game_width - 60, game_height - 40, ASGE::COLOURS::WHITE);
-
-		std::string score_str = "Score: " + std::to_string(score);
-		renderer->renderText(score_str.c_str(),
-			20, game_height - 20, ASGE::COLOURS::WHITE);
-		std::string shots_str = "Shots: " + std::to_string(number_of_bullets);
-		renderer->renderText(shots_str.c_str(),
-			20, game_height - 50, ASGE::COLOURS::WHITE);
-
-		for (int i = 0; i < alien_array_size; i++)
+		if (state == -1)
 		{
-			if (aliens[i].visibility == true)
-			{
-				renderer->renderSprite(*aliens[i].spriteComponent()->getSprite());
-			}
+			renderer->renderText("YOU LOSE",
+				200, 200, ASGE::COLOURS::WHITE);
 		}
-
-		
-
-		for (int j = 0; j < bullet_array_size; j++)
+		else if (state == 1)
 		{
-			if (bullets[j].visibility == true)
+			renderer->renderText("YOU WIN",
+				200, 200, ASGE::COLOURS::WHITE);
+		}
+		else if (state == 0)
+		{
+			renderer->renderSprite(*defender_sprite);
+
+			std::string x_str = "X: " + std::to_string(1 - (aliens[0].spriteComponent()->getSprite()->xPos() / game_width));
+			renderer->renderText(x_str.c_str(),
+				game_width - 60, game_height - 20, ASGE::COLOURS::WHITE);
+			std::string y_str = "Y: " + std::to_string(aliens[0].get_vel_y());
+			renderer->renderText(y_str.c_str(),
+				game_width - 60, game_height - 40, ASGE::COLOURS::WHITE);
+
+			std::string score_str = "Score: " + std::to_string(score);
+			renderer->renderText(score_str.c_str(),
+				20, game_height - 20, ASGE::COLOURS::WHITE);
+			std::string shots_str = "Shots: " + std::to_string(number_of_bullets);
+			renderer->renderText(shots_str.c_str(),
+				20, game_height - 50, ASGE::COLOURS::WHITE);
+
+			for (int i = 0; i < alien_array_size; i++)
 			{
-				renderer->renderSprite(*bullets[j].spriteComponent()->getSprite());
+				if (aliens[i].visibility == true)
+				{
+					renderer->renderSprite(*aliens[i].spriteComponent()->getSprite());
+				}
+			}
+
+
+
+			for (int j = 0; j < bullet_array_size; j++)
+			{
+				if (bullets[j].visibility == true)
+				{
+					renderer->renderSprite(*bullets[j].spriteComponent()->getSprite());
+				}
 			}
 		}
 	}
-
 
 }
 
@@ -507,6 +526,7 @@ void SpaceInvaders::bulletMovement(float dt_sec)
 						bullets[j].visibility = false;	
 						number_of_bullets++;
 						score += 5000;
+						number_of_aliens--;
 						break;
 					}
 				}
@@ -529,8 +549,58 @@ void SpaceInvaders::alienMovement(float dt_sec)
 			float x_pos = alien_sprite->xPos();
 			float y_pos = alien_sprite->yPos();
 
-			aliens[i].set_vel_x(1);
-			aliens[i].set_vel_y(x_pos / 100);
+
+			
+
+			if (aliens[13].spriteComponent()->getSprite()->xPos() + aliens[13].spriteComponent()->getSprite()->width() >= game_width)
+			{
+				direction = -1;
+				y_pos += 50;
+			}
+			if (aliens[0].spriteComponent()->getSprite()->xPos() <= 0)
+			{
+				direction = 1;
+				y_pos += 50;
+			}
+			if (direction == -1)
+			{
+				for (int j = 0; j < alien_array_size; j++)
+				{
+					aliens[j].set_vel_x(-1);
+					
+				}
+				
+			}
+			else if (direction == 1)
+			{
+				for (int j = 0; j < alien_array_size; j++)
+				{
+					aliens[j].set_vel_x(1);
+					
+					
+				}
+				
+			}
+			x_pos += aliens[i].get_vel_x() * aliens[i].speed / 8 * dt_sec;
+			
+			 
+			alien_sprite->xPos(x_pos);
+			alien_sprite->yPos(y_pos);
+		}
+	}
+	break;
+	case 1:
+	{
+		for (int i = 0; i < alien_array_size; i++)
+		{
+
+
+			alien_sprite = aliens[i].spriteComponent()->getSprite();
+			float x_pos = alien_sprite->xPos();
+			float y_pos = alien_sprite->yPos();
+
+			
+			
 
 			if (aliens[13].spriteComponent()->getSprite()->xPos() + aliens[13].spriteComponent()->getSprite()->width() >= game_width)
 			{
@@ -545,6 +615,7 @@ void SpaceInvaders::alienMovement(float dt_sec)
 				for (int j = 0; j < alien_array_size; j++)
 				{
 					aliens[j].set_vel_x(-1);
+					aliens[i].set_vel_y((game_width - x_pos) / 50);
 				}
 			}
 			else if (direction == 1)
@@ -552,6 +623,7 @@ void SpaceInvaders::alienMovement(float dt_sec)
 				for (int j = 0; j < alien_array_size; j++)
 				{
 					aliens[j].set_vel_x(1);
+					aliens[i].set_vel_y(x_pos / 50);
 				}
 			}
 			x_pos += aliens[i].get_vel_x() * aliens[i].speed / 8 * dt_sec;
@@ -562,8 +634,9 @@ void SpaceInvaders::alienMovement(float dt_sec)
 		}
 		break;
 	}
-	case 1:
+	case 2:
 	{
+		
 		for (int i = 0; i < alien_array_size; i++)
 		{
 			
@@ -573,18 +646,36 @@ void SpaceInvaders::alienMovement(float dt_sec)
 			auto y_pos = alien_sprite->yPos();
 
 			float a = x_pos - (game_width / 2);
-			aliens[i].set_vel_x(1);
-			aliens[i].set_vel_y(a * a);
-
 			
-
-			if (aliens[13].spriteComponent()->getSprite()->xPos() + aliens[13].spriteComponent()->getSprite()->width() >= game_width)
+			aliens[i].set_vel_x(1);
+			aliens[i].set_vel_y(1);
+			
+			if (0 <= i <= 13)
+			{
+				y_pos = -0.0005 * (a * a) + c;
+			}
+			else if (14 <= i <= 27)
+			{
+				y_pos = -0.0005 * (a * a) + c;
+			}
+			else if (28 <= i <= 41)
+			{
+				y_pos = -0.0005 * (a * a) + c;
+			}
+			else if (42 <= i)
+			{
+				y_pos = -0.0005 * (a * a) + c;
+			}
+			if (aliens[13].spriteComponent()->getSprite()->xPos()
+				+ aliens[13].spriteComponent()->getSprite()->width() >= game_width)
 			{
 				direction = -1;
+				c += 1;
 			}
 			if (aliens[0].spriteComponent()->getSprite()->xPos() <= 0)
 			{
 				direction = 1;
+				c += 1;
 			}
 			if (direction == -1)
 			{
@@ -600,8 +691,73 @@ void SpaceInvaders::alienMovement(float dt_sec)
 					aliens[j].set_vel_x(1);
 				}
 			}
+			y_pos = -0.0005 * (a * a) + c;
+			x_pos += aliens[i].get_vel_x() * aliens[i].speed / 8 * dt_sec;
+			y_pos += aliens[i].get_vel_y() * aliens[i].speed / 25 * dt_sec;
+
+			alien_sprite->xPos(x_pos);
+			alien_sprite->yPos(y_pos);
+		}
+		break;
+	}
+	case 3:
+	{
+
+		for (int i = 0; i < alien_array_size; i++)
+		{
+
+
+			alien_sprite = aliens[i].spriteComponent()->getSprite();
+			auto x_pos = alien_sprite->xPos();
+			auto y_pos = alien_sprite->yPos();
+
+			float a = x_pos - (game_width / 2);
+
+			aliens[i].set_vel_x(1);
+			aliens[i].set_vel_y(1);
+			if (0 <= i <= 13)
+			{
+				y_pos = 20 * sin(a / 10) + 50;
+			}
+			else if (14 <= i <= 28)
+			{
+				y_pos = 20 * sin(a / 10) + 100;
+			}
+			else if (29 <= i <= 43)
+			{
+				y_pos = 20 * sin(a / 10) + 150;
+			}
+			else if (44 <= i)
+			{
+				y_pos = 20 * sin(a / 10) + 200;
+			}
 			
-			
+
+			if (aliens[13].spriteComponent()->getSprite()->xPos()
+				+ aliens[13].spriteComponent()->getSprite()->width() >= game_width)
+			{
+				direction = -1;
+				c += 1;
+			}
+			if (aliens[0].spriteComponent()->getSprite()->xPos() <= 0)
+			{
+				direction = 1;
+				c += 1;
+			}
+			if (direction == -1)
+			{
+				for (int j = 0; j < alien_array_size; j++)
+				{
+					aliens[j].set_vel_x(-1);
+				}
+			}
+			else if (direction == 1)
+			{
+				for (int j = 0; j < alien_array_size; j++)
+				{
+					aliens[j].set_vel_x(1);
+				}
+			}
 
 			x_pos += aliens[i].get_vel_x() * aliens[i].speed / 8 * dt_sec;
 			y_pos += aliens[i].get_vel_y() * aliens[i].speed / 25 * dt_sec;
@@ -611,6 +767,17 @@ void SpaceInvaders::alienMovement(float dt_sec)
 		}
 		break;
 	}
+	}
 
+	
+	if (aliens[55].spriteComponent()->getSprite()->yPos() > game_height - 50)
+	{
+		state = -1;
+	}
+	
+
+	if (number_of_aliens <= 0)
+	{
+		state = 1;
 	}
 }

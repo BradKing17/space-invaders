@@ -37,6 +37,7 @@ private:
 
 	//Game Variables
 	bool in_menu = true;
+	int state = 0;
 	int x_pos = 0;
 	int y_pos = 56;
 	int score = 0;
@@ -45,6 +46,7 @@ private:
 	bool mode_select = false;
 	int mode = 0;
 	int direction = 1;
+	int c = 100;
 
 
 	//Add your GameObjects
@@ -65,6 +67,7 @@ private:
 	ASGE::Sprite* alien_sprite = nullptr;
 	int alien_array_size = 56;
 	rect alien_box;
+	int number_of_aliens = alien_array_size;
 
 
 	
